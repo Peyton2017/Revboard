@@ -4,12 +4,29 @@
 	import LoginCard from '$lib/components/LoginCard.svelte';
 	import VerificationCard from '$lib/components/VerificationCard.svelte';
 	import { goto } from '$app/navigation';
+
 	let { data }: { data: PageData } = $props();
 
-	let userId = $state('');
-	let showLoginCard = $state(true);
-	let showVerificationCard = $state(false);
-	let verificationCode = $state('ABC123'); // This should be generated or received from your backend
+	// User state
+	let myUserId = $state('');
+	let isLoginVisible = $state(true);
+	let isVerificationVisible = $state(false);
+	let myVerificationCode = $state('ABC123'); // Example code
+
+	// Login submission handler
+	function submitUserId(id) {
+		myUserId = id;
+		console.log('User ID submitted:', myUserId);
+		isLoginVisible = false;
+		isVerificationVisible = true;
+	}
+
+	// Verification handler
+	function completeVerification(event) {
+		if (event) event.preventDefault();
+		console.log('Verification completed for user:', myUserId);
+		goto('/');
+	}
 
 
 	function handleUserIdSubmit(id: string) {
@@ -21,28 +38,32 @@
 		showVerificationCard = true;
 	}
 
-	function handleVerificationComplete() {
+	function handleVerificationComplete(event: Event) {
+		// Prevent default form submission
+		event.preventDefault();
 		// Handle verification completion logic here
 		console.log('Verification completed for user:', userId);
 		goto('/'); // Redirect to dashboard after successful verification
 	}
 </script>
 
+
 <!-- Full-height flex column layout -->
 <div class="min-h-screen flex flex-col">
 	<!-- Navbar at the top -->
 	<Navbar />
 
-	<!-- Fill remaining space and center card -->
-	<div class="flex-grow flex items-center justify-center bg-base-100">
-		{#if showLoginCard}
-			<LoginCard userId={userId} handleUserIdSubmit={handleUserIdSubmit} />
+	<!-- Simple background with centered cards -->
+	<div class="flex-grow flex items-center justify-center" style="background: radial-gradient(circle at 50% 50%, #03050F 0%, #0B0E18 60%, #151823 100%);">
+
+		{#if isLoginVisible}
+			<LoginCard userId={myUserId} handleUserIdSubmit={submitUserId} />
 		{/if}
-		
-		{#if showVerificationCard}
+
+		{#if isVerificationVisible}
 			<VerificationCard 
-				verificationCode={verificationCode}
-				onVerificationComplete={handleVerificationComplete}
+				verificationCode={myVerificationCode}
+				onVerificationComplete={completeVerification}
 			/>
 		{/if}
 	</div>
